@@ -1,5 +1,7 @@
 ---
-title: "Example: Numerical solutions to ODEs in R"
+title: "Numerical solutions to ODEs in R"
+author: Mia Forsline
+date: 8/4/2021 
 output: html_document
 ---
 
@@ -44,7 +46,7 @@ Solving the Lotke-Volterra equation:
 time <- seq(0, 25, by = 0.05)
 
 # Set some parameter values (these can change - keep it in mind):
-parameters <- c(alpha = .75, beta = 0.8, delta = 0.5, gamma = 1)
+parameters <- c(alpha = 0.75, beta = 0.8, delta = 0.5, gamma = 1)
 
 # Set the initial condition (prey and predator populations at t = 0).
 # Recall: x = prey, y = predator
@@ -53,12 +55,13 @@ init_cond <- c(x = 5, y = 2)
 # Prepare the series of differential equations as a function: 
 lk_equations <- function(time, init_cond, parameters) {
   with(as.list(c(init_cond, parameters)), {
-    dxdt = alpha * x - beta * x * y
-    dydt = delta * x * y - gamma * y
+    dxdt = alpha * x - beta * x * y #prey equation 
+    dydt = delta * x * y - gamma * y #predator equation 
     return(list(c(dxdt, dydt)))
   })
 }
 
+#ode = ordinary differential equation 
 # Find the approximate the solution using `deSolve::ode()`:
 approx_lk <- ode(y = init_cond, times = time, func = lk_equations, parms = parameters)
 
@@ -66,10 +69,12 @@ approx_lk <- ode(y = init_cond, times = time, func = lk_equations, parms = param
 class(approx_lk)
 
 # We really want this to be a data frame, and we want both prey (x) and predator (y) to be in the same column -- we'll learn why in EDS 221 (tidy data)
+#pivot_longer is arranging the data frame into columns 
 approx_lk_df <- data.frame(approx_lk) %>% 
   pivot_longer(cols = c(x,y), names_to = "species", values_to = "population")
 
 # Plot it! 
+#group = species in ggplot()
 ggplot(data = approx_lk_df, aes(x = time, y = population)) +
   geom_line(aes(color = species))
 ```
